@@ -5,7 +5,17 @@
 
 FROM iron/python:2
 
-MAINTAINER Ivan Krizsan, https://github.com/krizsan
+ARG GIT_COMMIT
+ARG GIT_BRANCH=master
+ARG GIT_DIRTY=undefined
+ARG BUILD_CREATOR
+ARG BUILD_NUMBER
+
+LABEL branch=$GIT_BRANCH \
+	commit=$GIT_COMMIT \
+	dirty=$GIT_DIRTY \
+	build-creator=$BUILD_CREATOR \
+	build-number=$BUILD_NUMBER
 
 # Set this environment variable to true to set timezone on container start.
 ENV SET_CONTAINER_TIMEZONE false
@@ -107,6 +117,9 @@ RUN python setup.py install && \
 
 # Define mount points.
 VOLUME [ "${CONFIG_DIR}", "${RULES_DIRECTORY}", "${LOG_DIR}"]
+
+COPY elastalert_config.yml $CONFIG_DIR/elastalert_config.yaml
+COPY elastalert_supervisord.conf $CONFIG_DIR
 
 # Launch Elastalert when a container is started.
 CMD ["/opt/start-elastalert.sh"]
